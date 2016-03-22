@@ -23,7 +23,8 @@ class Dummy(object):
     def option(self, name):
         type_, default = self.options[name][1:3]
         value = self.settings.get(name, default)
-        return self._convert(value, type_)
+        converted_value = self._convert(value, type_)
+        return converted_value
 
     def on_before_handle(self, protocol, source, dest, to_backend):
         return True

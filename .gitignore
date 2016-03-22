@@ -2,3 +2,5 @@
 *.egg-info
 *.un~
 .idea/
+dist/*
+*tar.gz

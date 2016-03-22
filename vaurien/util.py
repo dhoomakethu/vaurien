@@ -205,6 +205,7 @@ def extract_settings(args, prefix, name):
     for arg in dir(args):
         if not arg.startswith(prefix):
             continue
-        settings[arg[len(prefix):]] = getattr(args, arg)
+        val = getattr(args, arg)
+        settings[arg[len(prefix):]] = val
 
     return settings

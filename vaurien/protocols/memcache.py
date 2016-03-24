@@ -17,9 +17,11 @@ class Memcache(BaseProtocol):
     """
     name = 'memcache'
 
-    def _handle(self, source, dest, to_backend, on_between_handle):
+    def _handle(self, source, dest, to_backend, on_between_handle,
+                **kwargs):
         # https://github.com/memcached/memcached/blob/master/doc/protocol.txt
         # Sending the query
+
         buffer = self._get_data(source)
         if not buffer:
             self._abort_handling(to_backend, dest)

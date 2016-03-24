@@ -52,12 +52,14 @@ class BaseProtocol(object):
         return get_data(sock, buffer)
 
     def __call__(self, source, dest, to_backend, behavior):
-        if not behavior.on_before_handle(self, source, dest, to_backend):
+        cont, data_sent = behavior.on_before_handle(self, source, dest, to_backend)
+        if not cont:
             return True
         try:
             return self._handle(source, dest, to_backend,
                                 lambda: behavior.on_between_handle(self, source,
                                                                    dest,
-                                                                   to_backend))
+                                                                   to_backend),
+                                data_sent=data_sent)
         finally:
             behavior.on_after_handle(self, source, dest, to_backend)

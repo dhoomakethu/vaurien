@@ -16,7 +16,7 @@ class TCP(BaseProtocol):
     """
     name = 'tcp'
 
-    def _handle(self, source, dest, to_backend, on_between_handle):
+    def _handle(self, source, dest, to_backend, on_between_handle, **kwargs):
         # default TCP behavior
         data = self._get_data(source)
         if data:

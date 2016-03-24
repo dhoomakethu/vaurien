@@ -24,6 +24,10 @@ class Behavior(object):
     def on_after_handle(self, protocol, source, dest, to_backend):
         pass
 
+    @abstractmethod
+    def init(self):
+        pass
+
     @classmethod
     def __subclasshook__(cls, klass):
         if cls is Behavior:

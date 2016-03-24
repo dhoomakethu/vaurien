@@ -28,7 +28,10 @@ def set_behavior(request):
 
 @behavior.get()
 def get_behavior(request):
-    return {'behavior': request.proxy.get_behavior()[1]}
+    _behavior, name = request.proxy.get_behavior()
+    behavior = {'behavior': name}
+    behavior.update(_behavior.settings)
+    return behavior
 
 
 @behaviors.get()

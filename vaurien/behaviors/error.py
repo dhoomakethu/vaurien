@@ -84,19 +84,25 @@ class Error(Dummy):
             return False
 
         # error out
-        if protocol.name == 'http' and to_backend:
+        if protocol.name in 'http' and to_backend:
             # we'll just send back a random error
-            source.sendall(random_http_error())
-            source.close()
-            source._closed = True
-            return False
+            if self.option('inject'):
+                self.inject(dest, to_backend, data)
+                return True, True
+            else:
+                source.sendall(random_http_error())
+                source.close()
+                source._closed = True
+                return False, False
 
         if self.option('inject'):
-            if not to_backend:      # back to the client
-                middle = len(data) / 2
-                dest.sendall(data[:middle] + os.urandom(100) + data[middle:])
-            else:                   # sending the data tp the backend
-                dest.sendall(data)
+            # if not to_backend:      # back to the client
+            #     middle = len(data) / 2
+            #     dest.sendall(data[:middle] + os.urandom(100) + data[middle:])
+            # else:                   # sending the data tp the backend
+            #     dest.sendall(data)
+            self.inject(dest, to_backend, data)
+            return True, True
 
         else:
             if not to_backend:
@@ -106,5 +112,16 @@ class Error(Dummy):
 
             else:          # sending the data tp the backend
                 dest.sendall(data)
+            return True, True
 
-        return True
+        return True, True
+
+    def init(self):
+        self.current = 0
+
+    def inject(self, dest, to_backend, data):
+        if  to_backend:      # back to the client
+            middle = len(data) / 2
+            dest.sendall(data[:middle] + os.urandom(100) + data[middle:])
+        else:                   # sending the data tp the backend
+            dest.sendall(data)

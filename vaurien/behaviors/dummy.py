@@ -27,10 +27,13 @@ class Dummy(object):
         return converted_value
 
     def on_before_handle(self, protocol, source, dest, to_backend):
-        return True
+        return True,False
 
     def on_after_handle(self, protocol, source, dest, to_backend):
         return True
 
     def on_between_handle(self, protocol, source, dest, to_backend):
         return True
+
+    def init(self):
+        self.settings = {}

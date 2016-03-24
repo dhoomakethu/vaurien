@@ -29,21 +29,23 @@ class Http(BaseProtocol):
         dest._closed = True
         return False
 
-    def _handle(self, source, dest, to_backend, on_between_handle):
+    def _handle(self, source, dest, to_backend, on_between_handle,
+                data_sent=False):
         buffer_size = self.option('buffer')
 
         # Getting the HTTP query and sending it to the backend.
         parser = HttpParser()
-        while not parser.is_message_complete():
-            data = self._get_data(source, buffer_size)
-            if not data:
-                return self._close_both(source, dest)
-            nparsed = parser.execute(data, len(data))
-            assert nparsed == len(data)
-            if self.option('overwrite_host_header'):
-                data = HOST_REPLACE.sub('\r\nHost: %s\r\n'
-                                        % self.proxy.backend, data)
-            dest.sendall(data)
+        if not data_sent:
+            while not parser.is_message_complete():
+                data = self._get_data(source, buffer_size)
+                if not data:
+                    return self._close_both(source, dest)
+                nparsed = parser.execute(data, len(data))
+                assert nparsed == len(data)
+                if self.option('overwrite_host_header'):
+                    data = HOST_REPLACE.sub('\r\nHost: %s\r\n'
+                                            % self.proxy.backend, data)
+                dest.sendall(data)
         keep_alive_src = parser.should_keep_alive()
         method = parser.get_method()
 

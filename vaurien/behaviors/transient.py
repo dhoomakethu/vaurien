@@ -1,5 +1,4 @@
 from vaurien.behaviors.error import Error
-from vaurien.util import get_data
 
 class Transient(Error):
     name = 'transient'
@@ -16,4 +15,4 @@ class Transient(Error):
             return super(Transient, self).on_before_handle(protocol, source,
                                                        dest, to_backend)
 
-        return True
+        return True, False

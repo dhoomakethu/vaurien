@@ -30,11 +30,12 @@ class Https(BaseProtocol):
         dest._closed = True
         return False
 
-    def _handle(self, source, dest, to_backend, *args, **kwargs):
+    def _handle(self, source, dest, to_backend, **kwargs):
         buffer_size = self.option('buffer')
 
         # Getting the HTTP query and sending it to the backend.
         parser = HttpParser()
+
         while not parser.is_message_complete():
             data = self._get_data(source, buffer_size)
             if not data:

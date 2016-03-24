@@ -232,6 +232,7 @@ class OnTheFlyProxy(DefaultProxy):
         behavior_name = options.pop('name')
         self.behavior = self.behaviors[behavior_name]
         self.behavior_name = behavior_name
+        self.behavior.init()
         for name, value in options.items():
             self.behavior.settings[name] = value
         self._logger.info('Handler changed to "%s"' % behavior_name)

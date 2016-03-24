@@ -28,7 +28,7 @@ class Redis(BaseProtocol):
             pos = buffer.find(char)
         return pos, buffer
 
-    def _handle(self, source, dest, to_backend, on_between_handle):
+    def _handle(self, source, dest, to_backend, on_between_handle, **kwargs):
         """ see http://redis.io/topics/protocol
         """
         # grabbing data

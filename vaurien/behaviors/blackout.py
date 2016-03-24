@@ -12,4 +12,4 @@ class Blackout(Dummy):
         # close source socket
         source.close()
         source._closed = True
-        return False
+        return False, False

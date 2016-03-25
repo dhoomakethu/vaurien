@@ -1,6 +1,11 @@
 import os
 import random
 
+try:
+    from http_parser.parser import HttpParser
+except ImportError:
+    from http_parser.pyparser import HttpParser
+
 from vaurien.behaviors.dummy import Dummy
 from vaurien.util import get_data
 
@@ -87,7 +92,7 @@ class Error(Dummy):
         if protocol.name in 'http' and to_backend:
             # we'll just send back a random error
             if self.option('inject'):
-                self.inject(dest, to_backend, data)
+                self.inject(dest, to_backend, data, http=True)
                 return True, True
             else:
                 source.sendall(random_http_error())
@@ -96,12 +101,7 @@ class Error(Dummy):
                 return False, False
 
         if self.option('inject'):
-            # if not to_backend:      # back to the client
-            #     middle = len(data) / 2
-            #     dest.sendall(data[:middle] + os.urandom(100) + data[middle:])
-            # else:                   # sending the data tp the backend
-            #     dest.sendall(data)
-            self.inject(dest, to_backend, data)
+            self.inject(dest, to_backend, data, )
             return True, True
 
         else:
@@ -119,9 +119,30 @@ class Error(Dummy):
     def init(self):
         self.current = 0
 
-    def inject(self, dest, to_backend, data):
-        if  to_backend:      # back to the client
+    def inject(self, dest, to_backend, data, http=False):
+        modified_data = data
+        if http:
+            # to_backend = not to_backend
+            parser = HttpParser()
+            parser.execute(data, len(data))
+
+            query = parser.get_query_string()
+            url = parser.get_url()
+            body = parser.recv_body()
+            if body:
+                inject_in = body
+            elif query:
+                inject_in = query
+            else:
+                inject_in = url
+            modified_data = data.replace(
+                inject_in, "%s%s" % (inject_in, os.urandom(100))
+            )
+
+            # modified_data = data.replace(inject_in, new_inject_in)
+        if not to_backend:      # back to the client
             middle = len(data) / 2
-            dest.sendall(data[:middle] + os.urandom(100) + data[middle:])
-        else:                   # sending the data tp the backend
-            dest.sendall(data)
+            modified_data = data[:middle] + os.urandom(100) + data[middle:]
+
+        # sending the data tp the backend
+        dest.sendall(modified_data)
